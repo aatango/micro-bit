@@ -1,33 +1,3 @@
-/*
-
-
-
-let bpms: number[] = [40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60];
-let bpm_index: number = 0;
-let bpm: number = bpms[bpm_index];
-
-let maxBrightness: number = 255;
-led.setBrightness(maxBrightness);
-
-// Control inputs
-input.onButtonPressed(Button.A, () => {
-    if (bpm_index > 0) {
-        bpm_index -= 1;
-        bpm = bpms[bpm_index];
-        led.setBrightness(maxBrightness);
-        basic.showNumber(bpm);
-    }
-});
-input.onButtonPressed(Button.B, () => {
-    if (bpm_index < bpms.length - 1) {
-        bpm_index += 1;
-        bpm = bpms[bpm_index];
-        led.setBrightness(maxBrightness);
-        basic.showNumber(bpm);
-    }
-});
- */
-
 // Common arrangement on a Maelzel metronome, acc. Wikipedia.
 let bpms: uint8[] = [
 	40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60,
@@ -37,73 +7,102 @@ let bpms: uint8[] = [
 	144, 152, 160, 168, 176, 184, 192, 200, 208,
 ];
 
-let bpm: uint8 = 92;
-let interval: uint16[] = [
-	60e3 / bpm * 0.5,
-	60e3 / bpm * 0.2,
-	60e3 / bpm * 0.1,
-];
+let bpm: uint8;
+let interval: uint16[];
 
-while (true) {
-	control.inBackground(() => { music.playTone(Note.CSharp, interval[0]); })
-	basic.showLeds(`
-		#....
-		#....
-		#....
-		#....
-		#....
-	`, interval[0]);
+function updateTempo(): void {
+	bpm = bpms[bpm_index];
+	interval = [
+		60e3 / bpm * 0.5,
+		60e3 / bpm * 0.2,
+		60e3 / bpm * 0.1,
+	];
+};
 
-	basic.showLeds(`
-		.....
-		.#...
-		.#...
-		.#...
-		.....
-	`, interval[1]);
-	basic.showLeds(`
-		.....
-		.....
-		..#..
-		.....
-		.....
-	`, interval[2]);
-	basic.showLeds(`
-		.....
-		...#.
-		...#.
-		...#.
-		.....
-	`, interval[1]);
+// initial parameters
+let bpm_index: uint8 = 17;
+updateTempo();
 
-	control.inBackground(() => { music.playTone(Note.CSharp, interval[0]); })
-	basic.showLeds(`
-		....#
-		....#
-		....#
-		....#
-		....#
-	`, interval[0]);
-
-	basic.showLeds(`
-		.....
-		...#.
-		...#.
-		...#.
-		.....
-	`, interval[1]);
-	basic.showLeds(`
-		.....
-		.....
-		..#..
-		.....
-		.....
-	`, interval[2]);
-	basic.showLeds(`
-		.....
-		.#...
-		.#...
-		.#...
-		.....
-	`, interval[1]);
+// Tempo controls.
+input.onButtonPressed(Button.A, () => {
+	if (bpm_index > 0) {
+		bpm_index -= 1;
+		updateTempo();
+	} 
+});
+input.onButtonPressed(Button.B, () => {
+	if (bpm_index < bpms.length - 1) {
+		bpm_index += 1;
+		updateTempo();
 	}
+});
+input.onButtonPressed(Button.AB, () => { basic.showNumber(bpm); });
+
+main();
+
+function main(): void {
+	basic.showNumber(bpm);
+	while (true) {
+		control.inBackground(() => { music.playTone(Note.CSharp, interval[0]); })
+		basic.showLeds(`
+			#....
+			#....
+			#....
+			#....
+			#....
+		`, interval[0]);
+
+		basic.showLeds(`
+			.....
+			.#...
+			.#...
+			.#...
+			.....
+		`, interval[1]);
+		basic.showLeds(`
+			.....
+			.....
+			..#..
+			.....
+			.....
+		`, interval[2]);
+		basic.showLeds(`
+			.....
+			...#.
+			...#.
+			...#.
+			.....
+		`, interval[1]);
+
+		control.inBackground(() => { music.playTone(Note.CSharp, interval[0]); })
+		basic.showLeds(`
+			....#
+			....#
+			....#
+			....#
+			....#
+		`, interval[0]);
+
+		basic.showLeds(`
+			.....
+			...#.
+			...#.
+			...#.
+			.....
+		`, interval[1]);
+		basic.showLeds(`
+			.....
+			.....
+			..#..
+			.....
+			.....
+		`, interval[2]);
+		basic.showLeds(`
+			.....
+			.#...
+			.#...
+			.#...
+			.....
+		`, interval[1]);
+		}
+}
